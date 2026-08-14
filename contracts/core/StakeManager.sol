@@ -23,8 +23,9 @@ abstract contract StakeManager is IStakeManager {
     }
 
     /**
-     * Internal method to return just the stake info.
+     * @notice Internal method to return just the stake info for an account.
      * @param addr - The account to query.
+     * @return info - The stake amount and unstake delay for `addr`.
      */
     function _getStakeInfo(
         address addr
@@ -44,10 +45,10 @@ abstract contract StakeManager is IStakeManager {
     }
 
     /**
-     * Increments an account's deposit.
-     * @param account - The account to increment.
-     * @param amount  - The amount to increment by.
-     * @return the updated deposit of this account
+     * @notice Increments an account's deposit.
+     * @param account - The account whose deposit to increase.
+     * @param amount  - The amount to add to the deposit.
+     * @return        - The updated deposit balance of `account`.
      */
     function _incrementDeposit(address account, uint256 amount) internal virtual returns (uint256) {
         unchecked {
@@ -59,10 +60,11 @@ abstract contract StakeManager is IStakeManager {
     }
 
     /**
-     * Try to decrement the account's deposit.
-     * @param account - The account to decrement.
-     * @param amount  - The amount to decrement by.
-     * @return true if the decrement succeeded (that is, previous balance was at least that amount)
+     * @notice Try to decrement the account's deposit.
+     * @param account - The account whose deposit to decrease.
+     * @param amount  - The amount to subtract.
+     * @return        - `true` if the deposit was large enough and was decremented;
+     *                  `false` if the current deposit is less than `amount`.
      */
     function _tryDecrementDeposit(address account, uint256 amount) internal virtual returns (bool) {
         unchecked {

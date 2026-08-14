@@ -20,10 +20,16 @@ library Eip7702Support {
     using UserOperationLib for PackedUserOperation;
 
     /**
-     * Get the alternative 'InitCodeHash' value for the UserOp hash calculation when using EIP-7702.
+     * @notice Get the alternative 'InitCodeHash' value for the UserOp hash calculation when using EIP-7702.
      *
-     * @param userOp - the UserOperation to for the 'InitCodeHash' calculation.
-     * @return the 'InitCodeHash' value.
+     * When the UserOperation's `initCode` contains the EIP-7702 marker, the hash
+     * is derived from the delegate address (and optional extra data) rather than
+     * the raw `initCode` bytes. This ensures the hash is chain-specific to the
+     * currently active delegate contract.
+     *
+     * @param userOp - The UserOperation for the 'InitCodeHash' calculation.
+     * @return       - The 'InitCodeHash' value to use in the UserOp hash, or 0 if
+     *                 `userOp.initCode` is not an EIP-7702 initCode.
      */
     function _getEip7702InitCodeHashOverride(PackedUserOperation calldata userOp) internal view returns (bytes32) {
         bytes calldata initCode = userOp.initCode;
@@ -38,11 +44,11 @@ library Eip7702Support {
     }
 
     /**
-     * Check if this 'initCode' is actually an EIP-7702 authorization.
-     * This is indicated by 'initCode' that starts with INITCODE_EIP7702_MARKER.
+     * @notice Check if this 'initCode' is actually an EIP-7702 authorisation.
+     *         This is indicated by 'initCode' that starts with INITCODE_EIP7702_MARKER.
      *
-     * @param initCode - the 'initCode' to check.
-     * @return true if the 'initCode' is EIP-7702 authorization, false otherwise.
+     * @param initCode - The 'initCode' bytes to inspect.
+     * @return         - `true` if the 'initCode' encodes an EIP-7702 authorisation; `false` otherwise.
      */
     function _isEip7702InitCode(bytes calldata initCode) internal pure returns (bool) {
 
@@ -59,11 +65,15 @@ library Eip7702Support {
     }
 
     /**
-     * Get the EIP-7702 delegate from contract code.
-     * Must only be used if _isEip7702InitCode(initCode) is true.
+     * @notice Get the EIP-7702 delegate address from the sender's contract code.
+     *         Must only be called when `_isEip7702InitCode(initCode)` returns `true`.
      *
-     * @param sender - the EIP-7702 'sender' account to get the delegated contract code address.
-     * @return the address of the EIP-7702 authorized contract.
+     * Reads the first 23 bytes of the sender's deployed code.  A valid EIP-7702
+     * delegation starts with the three-byte prefix `0xef0100` followed by the
+     * 20-byte delegate address.
+     *
+     * @param sender - The account whose deployed code encodes the EIP-7702 delegation.
+     * @return       - The address of the delegated implementation contract.
      */
     function _getEip7702Delegate(address sender) internal view returns (address) {
 
