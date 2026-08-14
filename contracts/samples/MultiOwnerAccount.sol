@@ -5,7 +5,6 @@ pragma solidity ^0.8.28;
 /* solhint-disable no-inline-assembly */
 
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-import "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
 import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 import "../core/BaseAccount.sol";
@@ -108,8 +107,7 @@ contract MultiOwnerAccount is BaseAccount, TokenCallbackHandler, UUPSUpgradeable
     /// @inheritdoc BaseAccount
     function _validateSignature(PackedUserOperation calldata userOp, bytes32 userOpHash)
     internal override virtual returns (uint256 validationData) {
-        bytes32 hash = MessageHashUtils.toEthSignedMessageHash(userOpHash);
-        address recovered = ECDSA.recover(hash, userOp.signature);
+        address recovered = ECDSA.recover(userOpHash, userOp.signature);
         if (!owners[recovered]) {
             return SIG_VALIDATION_FAILED;
         }
