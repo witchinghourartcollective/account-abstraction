@@ -2,7 +2,6 @@ import { Wallet } from 'ethers'
 import { ethers } from 'hardhat'
 import { expect } from 'chai'
 import { parseEther } from 'ethers/lib/utils'
-import { toHex } from 'hardhat/internal/util/bigint'
 import { JsonRpcProvider } from '@ethersproject/providers'
 
 import {
@@ -194,7 +193,7 @@ describe('MultiOwnerAccount', function () {
 
     it('should deploy account when called by SenderCreator', async () => {
       const senderCreator = await entryPoint.senderCreator()
-      await (ethersSigner.provider as JsonRpcProvider).send('hardhat_setBalance', [senderCreator, toHex(100e18)])
+      await (ethersSigner.provider as JsonRpcProvider).send('hardhat_setBalance', [senderCreator, ethers.utils.hexValue(parseEther('100'))])
       const senderCreatorSigner = await ethers.getImpersonatedSigner(senderCreator)
 
       const owners = [owner1.address, owner2.address]

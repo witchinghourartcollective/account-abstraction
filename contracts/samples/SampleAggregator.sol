@@ -33,7 +33,7 @@ contract SampleAggregator is IAggregator, Stakeable {
 
     IEntryPoint private immutable _entryPoint;
 
-    error SignatureCountMismatch(uint256 userOpsLength, uint256 signaturesLength);
+    error SignatureCountMismatch(uint256 userOpsLength, uint256 signaturesByteLength);
     error InvalidSignatureLength(uint256 index, uint256 length);
     error SignerMismatch(uint256 index, address expected, address recovered);
 
@@ -65,7 +65,7 @@ contract SampleAggregator is IAggregator, Stakeable {
     ) external view override {
         uint256 count = userOps.length;
         if (signature.length != count * 65) {
-            revert SignatureCountMismatch(count, signature.length / 65);
+            revert SignatureCountMismatch(count, signature.length);
         }
 
         for (uint256 i = 0; i < count; i++) {

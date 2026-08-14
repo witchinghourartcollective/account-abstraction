@@ -30,7 +30,7 @@ contract MultiOwnerAccount is BaseAccount, TokenCallbackHandler, UUPSUpgradeable
     IEntryPoint private immutable _entryPoint;
 
     /// @notice Emitted when the account is initialised with its first owner set.
-    event MultiOwnerAccountInitialized(IEntryPoint indexed entryPoint, address[] indexed initialOwners);
+    event MultiOwnerAccountInitialized(IEntryPoint indexed entryPoint, address[] initialOwners);
     /// @notice Emitted when an owner is added.
     event OwnerAdded(address indexed owner);
     /// @notice Emitted when an owner is removed.
