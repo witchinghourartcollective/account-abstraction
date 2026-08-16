@@ -17,6 +17,7 @@ import {
   createAccountOwner,
   createAddress,
   deployEntryPoint,
+  fund,
   isDeployed
 } from './testutils'
 import { fillAndSign, packUserOp } from './UserOp'
@@ -69,6 +70,8 @@ describe('MultiOwnerAccount', function () {
     before(async () => {
       account = await deployMultiOwnerAccount([owner1.address, owner2.address])
       await ethersSigner.sendTransaction({ to: account.address, value: parseEther('1') })
+      await fund(owner1.address)
+      await fund(owner2.address)
     })
 
     it('owner1 should be able to add owner3', async () => {
@@ -89,14 +92,14 @@ describe('MultiOwnerAccount', function () {
 
     it('should not allow removing the last owner', async () => {
       await account.connect(owner1).removeOwner(owner2.address)
-      await expect(account.connect(owner1).removeOwner(owner1.address)).to.be.revertedWith('LastOwner')
+      await expect(account.connect(owner1).callStatic.removeOwner(owner1.address)).to.be.revertedWith('LastOwner')
       // restore
       await account.connect(owner1).addOwner(owner2.address)
     })
 
     it('non-owner should not be able to add an owner', async () => {
       const stranger = ethers.provider.getSigner(1)
-      await expect(account.connect(stranger).addOwner(owner3.address)).to.be.revertedWith('OnlyOwner')
+      await expect(account.connect(stranger).callStatic.addOwner(owner3.address)).to.be.revertedWith('OnlyOwner')
     })
   })
 
@@ -105,7 +108,7 @@ describe('MultiOwnerAccount', function () {
 
     before(async () => {
       account = await deployMultiOwnerAccount([owner1.address, owner2.address])
-      await ethersSigner.sendTransaction({ to: account.address, value: parseEther('1') })
+      await ethersSigner.sendTransaction({ to: account.address, value: parseEther('2') })
     })
 
     it('owner1 should be able to execute a UserOperation', async () => {
@@ -140,10 +143,7 @@ describe('MultiOwnerAccount', function () {
         sender: account.address,
         callData: '0x'
       }, stranger, entryPoint)
-      const result = await entryPoint.handleOps([packUserOp(op)], createAddress())
-        .then(async r => r.wait())
-      const events = await entryPoint.queryFilter(entryPoint.filters.UserOperationEvent(), result.blockHash)
-      expect(events[0].args.success).to.equal(false)
+      await expect(entryPoint.handleOps([packUserOp(op)], createAddress())).to.be.revertedWith('AA24 signature error')
     })
   })
 
@@ -153,6 +153,7 @@ describe('MultiOwnerAccount', function () {
     before(async () => {
       account = await deployMultiOwnerAccount([owner1.address])
       await ethersSigner.sendTransaction({ to: account.address, value: parseEther('2') })
+      await fund(owner1.address)
     })
 
     it('owner should be able to call execute directly', async () => {
@@ -164,7 +165,7 @@ describe('MultiOwnerAccount', function () {
     it('non-owner should not be able to call execute directly', async () => {
       const stranger = ethers.provider.getSigner(1)
       await expect(
-        account.connect(stranger).execute(createAddress(), ONE_ETH, '0x')
+        account.connect(stranger).callStatic.execute(createAddress(), ONE_ETH, '0x')
       ).to.be.revertedWith('OnlyOwnerOrEntryPoint')
     })
   })
