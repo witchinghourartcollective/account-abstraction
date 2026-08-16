@@ -42,6 +42,7 @@ contract MultiOwnerAccount is BaseAccount, TokenCallbackHandler, UUPSUpgradeable
     error NotOwner(address owner);
     error LastOwner();
     error EmptyOwnerList();
+    error ZeroOwner();
 
     modifier onlyOwner() {
         if (!owners[msg.sender] && msg.sender != address(this)) revert OnlyOwner();
