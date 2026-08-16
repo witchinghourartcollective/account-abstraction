@@ -108,6 +108,7 @@ contract SampleAggregator is IAggregator, Stakeable {
             bytes calldata sig = userOps[i].signature;
             if (sig.length != 65) revert InvalidSignatureLength(i, sig.length);
             uint256 offset = i * 65;
+            // solhint-disable-next-line no-inline-assembly
             assembly ("memory-safe") {
                 calldatacopy(add(add(aggregatedSignature, 0x20), offset), sig.offset, 65)
             }
