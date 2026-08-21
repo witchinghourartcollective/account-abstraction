@@ -10,7 +10,7 @@ services:
     restart: "no"
     environment:
       - HARDHAT_NETWORK=localgeth
-    command: "yarn mocha-gascalc"
+    command: "sh -c 'corepack enable && yarn mocha-gascalc'"
 
   localgeth:
     ports: [ '8545:8545' ]
