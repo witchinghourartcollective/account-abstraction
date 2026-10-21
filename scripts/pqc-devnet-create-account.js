@@ -72,7 +72,9 @@ async function main () {
   console.log('\nCounterfactual PqcAccount address:', accountAddress)
 
   console.log('\n--- Funding the counterfactual account for its UserOp prefund ---')
-  const fundTx = await wallet.sendTransaction({ to: accountAddress, value: ethers.utils.parseEther('0.01'), gasLimit: 100_000 })
+  // Prefund must cover (verificationGasLimit + callGasLimit + preVerificationGas) * maxFeePerGas
+  // = 15.4M gas * 10 gwei = 0.154 ETH; fund comfortably above that.
+  const fundTx = await wallet.sendTransaction({ to: accountAddress, value: ethers.utils.parseEther('0.5'), gasLimit: 100_000 })
   await fundTx.wait()
   console.log('Funded. tx:', fundTx.hash)
 
