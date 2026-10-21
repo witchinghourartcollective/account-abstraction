@@ -47,10 +47,13 @@ contract PqcAccount is BaseAccount, TokenCallbackHandler, UUPSUpgradeable, Initi
     }
 
     /**
-     * @param pubkey Raw serialized ML-DSA-65 public key (FIPS 204 encoding).
+     * @param pubkey The pre-expanded ML-DSA-65 key blob verifier.setKey()
+     *               expects (A_hat || t1 || tr, ~40,320 bytes) -- NOT the
+     *               raw ~1952-byte FIPS 204 public key; see
+     *               IMlDsa65Verifier.setKey's docs for how to produce it.
      *               Stored on-chain via verifier.setKey(); this contract
      *               only ever holds the resulting pointer blob, never the
-     *               full ~2.6KB key, to keep this account's own storage cheap.
+     *               full expanded key, to keep this account's own storage cheap.
      */
     function initialize(bytes calldata pubkey) public virtual initializer {
         pqcPublicKeyBlob = verifier.setKey(pubkey);

@@ -20,7 +20,13 @@ interface IMlDsa65Verifier {
      * @notice Store an expanded ML-DSA-65 public key via SSTORE2, returning
      *         the packed key-pointer blob that `verify`'s `pk` parameter
      *         expects. Call once per account at setup time.
-     * @param pubkey Serialized ML-DSA-65 public key (FIPS 204 encoding).
+     * @param pubkey The *pre-expanded* key blob (A_hat || t1 || tr, ~40,320
+     *               bytes) -- NOT the raw ~1952-byte FIPS 204 ML-DSA-65
+     *               public key. Produced off-chain from the raw public key
+     *               by ETHDILITHIUM's own js/mldsa65.js (confirmed against
+     *               the real deployed verifier on hOUR Chain's devnet,
+     *               2026-10-20: a correctly-sized ~40,320-byte blob costs
+     *               8,446,329 gas; an un-expanded ~1952-byte blob reverts).
      * @return pk Packed SSTORE2 pointer blob to pass to `verify`.
      */
     function setKey(bytes memory pubkey) external returns (bytes memory pk);

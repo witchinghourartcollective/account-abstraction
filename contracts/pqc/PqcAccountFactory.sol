@@ -25,7 +25,9 @@ contract PqcAccountFactory {
     /**
      * create an account, and return its address.
      * returns the address even if the account is already deployed.
-     * @param pubkey Raw serialized ML-DSA-65 public key for the new account.
+     * @param pubkey The pre-expanded ML-DSA-65 key blob for the new account
+     *               (see PqcAccount.initialize / IMlDsa65Verifier.setKey) --
+     *               NOT the raw public key.
      */
     function createAccount(bytes calldata pubkey, uint256 salt) public returns (PqcAccount ret) {
         require(msg.sender == address(senderCreator),

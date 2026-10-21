@@ -28,7 +28,12 @@ describe('PqcAccount', function () {
   before(async function () {
     entryPoint = await deployEntryPoint()
     verifier = await new TestMlDsaVerifier__factory(ethersSigner).deploy()
-    pubkey = hexlify(randomBytes(1952)) // FIPS 204 ML-DSA-65 public key size
+    // Arbitrary placeholder: TestMlDsaVerifier.setKey doesn't validate size
+    // or format, so this is not the real ~40,320-byte pre-expanded key blob
+    // a real verifier expects (see IMlDsa65Verifier.setKey's docs) -- kept
+    // small here purely so local gas estimation doesn't choke on a huge
+    // dummy calldata blob that buys this test nothing.
+    pubkey = hexlify(randomBytes(64))
 
     const factory = await new PqcAccountFactory__factory(ethersSigner).deploy(entryPoint.address, verifier.address)
     const senderCreator = await entryPoint.senderCreator()
