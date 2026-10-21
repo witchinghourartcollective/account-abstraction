@@ -85,7 +85,11 @@ async function main () {
   const accountIface = new ethers.utils.Interface(accountArtifact.abi)
   const callData = accountIface.encodeFunctionData('execute', [wallet.address, 0, '0x'])
 
-  const verificationGasLimit = 9_200_000 // setKey alone needs ~8.45M
+  // Block gas limit raised to 30M via governance (was 10M) specifically so this
+  // fits: setKey alone needs ~8.45M, verify() ~1.6-1.9M, both in the same
+  // verification phase as this op's own initCode, plus EntryPoint/proxy
+  // overhead and nested-call (1/64 retention) losses.
+  const verificationGasLimit = 15_000_000
   const callGasLimit = 300_000
   const preVerificationGas = 100_000
   const maxFeePerGas = ethers.utils.parseUnits('10', 'gwei')
@@ -116,7 +120,7 @@ async function main () {
   console.log('Signature length (bytes):', (userOp.signature.length - 2) / 2)
 
   console.log('\n--- Submitting via EntryPoint.handleOps ---')
-  const handleOpsTx = await entryPoint.handleOps([userOp], wallet.address, { gasLimit: 9_900_000 })
+  const handleOpsTx = await entryPoint.handleOps([userOp], wallet.address, { gasLimit: 25_000_000 })
   const receipt = await handleOpsTx.wait()
   console.log('handleOps tx:', handleOpsTx.hash, 'status:', receipt.status, 'gasUsed:', receipt.gasUsed.toString())
 
